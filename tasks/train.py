@@ -22,14 +22,14 @@ class Trainer:
 
         self.train_loader = create_dataloader(txt= text_data[:split_idx],
                                               batch_size= training_args['train_batch_size'],
-                                              max_length= 256,
-                                              stride= 256,
+                                              max_length= 4,
+                                              stride= 4,
                                               shuffle= True)
         
         self.val_loader = create_dataloader(txt= text_data[split_idx:],
                                             batch_size= training_args['val_batch_size'],
-                                            max_length= 256,
-                                            stride= 256,
+                                            max_length= 4,
+                                            stride= 4,
                                             shuffle= False)
         
         self.optim = torch.optim.AdamW(self.model.parameters(), lr= training_args['learning_rate'], weight_decay= training_args['weight_decay'])
@@ -45,7 +45,7 @@ class Trainer:
             checkpoint = torch.load(os.path.join(self.output_dir, "last_model.pth"))
             self.model.load_state_dict(checkpoint['model_state_dict'])
             self.optim.load_state_dict(checkpoint['optim_state_dict'])
-            best_loss = checkpoint['best_score']
+            best_loss = checkpoint['score']
 
         else:
             print("First time training!!!")
@@ -53,7 +53,7 @@ class Trainer:
  
         for i in range(self.num_epochs):
             self.model.train() # Set model to train mode
-            train_loss, val_loss = 0.
+            train_loss, val_loss = 0., 0.
             for _, (input, target) in enumerate(tqdm(self.train_loader)):
                 self.optim.zero_grad()
                 input, target = input.to(self.device), target.to(self.device)
